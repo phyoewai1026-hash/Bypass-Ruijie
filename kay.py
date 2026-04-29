@@ -40,7 +40,6 @@ def check_real_internet():
     except: return False
 
 def background_verify():
-    """အင်တာနက်ရလာရင် နောက်ကွယ်ကနေ Key ကို စစ်ပေးမည့်အပိုင်း"""
     my_key = get_system_key()
     while True:
         if check_real_internet():
@@ -68,12 +67,10 @@ def start_engine():
     print(f"╚════════════════════════════════════════════════╝{reset}")
     print(f"[*] ID: {byellow}{get_system_key()}{reset}\n")
     
-    print(f"{cyan}[*] Attempting Auto-Detection...{reset}")
     sid = None
     gw_ip = "192.168.110.1"
 
     try:
-        # Portal Redirect ကို ဖမ်းယူခြင်း
         r = requests.get("http://connectivitycheck.gstatic.com/generate_204", allow_redirects=True, timeout=5)
         parsed = urlparse(r.url)
         params = parse_qs(parsed.query)
@@ -81,9 +78,28 @@ def start_engine():
         if parsed.netloc: gw_ip = parsed.netloc.split(':')[0]
     except: pass
 
-    # အကယ်၍ Auto ရှာမရရင် Manual တောင်းမယ်
     if not sid:
         print(f"{yellow}[!] Auto-detection failed.{reset}")
-        print(f"{white}Browser URL ထဲက {byellow}sessionId={white} (သို့မဟုတ်) {byellow}token={white} နောက်ကစာသားကို ကူးထည့်ပါ။{reset}")
-        sid = input(f"{bcyan
+        print(f"{white}Browser URL ထဲက {byellow}sessionId={white} နောက်ကစာသားကို ကူးထည့်ပါ။{reset}")
+        sid = input(f"{bcyan}[?] Enter SID/Token: {reset}").strip()
+
+    if sid:
+        print(f"{white}Default Gateway: {gw_ip}{reset}")
+        u_ip = input(f"{bcyan}[?] Enter Gateway IP (Press Enter to keep): {reset}").strip()
+        if u_ip: gw_ip = u_ip
+
+        auth_link = f"http://{gw_ip}:2060/wifidog/auth?token={sid}"
+        print(f"{purple}[!] Engine Launching...{reset}")
+        for _ in range(12):
+            threading.Thread(target=high_speed_ping, args=(auth_link,), daemon=True).start()
+        
+        threading.Thread(target=background_verify, daemon=True).start()
+        while True: time.sleep(1)
+
+if __name__ == "__main__":
+    try:
+        start_engine()
+    except KeyboardInterrupt:
+        print(f"\n{red}Stopped.{reset}")
+        sys.exit()
         
