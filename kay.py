@@ -116,7 +116,7 @@ def main():
     my_key = get_system_key()
     
     print(f"{bcyan}╔════════════════════════════════════════════════╗")
-    print(f"║                   TURBO BYPASS v5       ║")
+    print(f"║             RUIJIE BYPASS v5 (For Key Approved _contact TG-@CYCLEA7)           ║")
     print(f"╚════════════════════════════════════════════════╝{reset}")
     print(f"[*] YOUR ID: {byellow}{my_key}{reset}")
 
