@@ -119,13 +119,13 @@ def check_approval():
         print(f"║                    ❌ KEY NOT APPROVED ❌                           ║")
         print(f"╠══════════════════════════════════════════════════════════════════╣")
         print(f"║                                                                  ║")
-        print(f"║  {yellow}ID approvedအတွက် TGကိုဆက်သွယ်ပါ:{reset}                                 ║")
+        print(f"║  {yellow}Send Your ID To Use This Tool:{reset}                                 ║")
         print(f"║                                                                  ║")
         print(f"║     {bcyan}📱 Telegram:{reset}  @CYCLEA7                                     ║")
         
         print(f"║                                                                  ║")
-        print(f"║  {yellow}သင့်ရဲ့ ID: {system_key}{reset}                                             ║")
-        print(f"║  {yellow}ID ကို copyလုပ်ပြီး TGမှာပို့ပေးပါ{reset}                                        ║")
+        print(f"║  {yellow}Your ID: {system_key}{reset}                                             ║")
+        print(f"║  {yellow} Contact Telegram to approve ID{reset}                                        ║")
         print(f"║                                                                  ║")
         print(f"╚══════════════════════════════════════════════════════════════════╝{reset}")
         return False
